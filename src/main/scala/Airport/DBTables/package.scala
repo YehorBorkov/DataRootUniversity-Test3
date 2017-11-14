@@ -7,12 +7,12 @@ import slick.ast.BaseTypedType
 import slick.jdbc.PostgresProfile.api._
 
 package object DBTables {
-  val companies         = TableQuery[CompanyTable]
-  val trips             = TableQuery[TripTable]
-  val passengers        = TableQuery[PassengerTable]
-  val passengersInTrips = TableQuery[PassengerInTripTable]
+  lazy val companies         = TableQuery[CompanyTable]
+  lazy val trips             = TableQuery[TripTable]
+  lazy val passengers        = TableQuery[PassengerTable]
+  lazy val passengersInTrips = TableQuery[PassengerInTripTable]
 
-  implicit val instantToTimestamp: BaseTypedType[Instant] =
+  implicit def instantToTimestamp: BaseTypedType[Instant] =
     MappedColumnType.base[Instant, Timestamp](
       instant => Timestamp.from(instant),
       timestamp => timestamp.toInstant
