@@ -10,7 +10,7 @@ object CompanyDataHelper extends DataHelper[Company] {
   def getData(resource: String): Seq[Company] =
     Source.fromResource(resource).
       getLines.
-      map {case companyData(comp_id, name) => Company(Some(comp_id.toInt), name)}.
+      map{ case companyData(comp_id, name) => Company(Some(comp_id.toInt), name) }.
       toSeq
 }
 
@@ -19,7 +19,7 @@ object PassengerInTripDataHelper extends DataHelper[PassengerInTrip] {
   def getData(resource: String): Seq[PassengerInTrip] =
     Source.fromResource(resource).
       getLines.
-      map {case passengerInTripData(tripId, dateString, passengerId, place) => PassengerInTrip(tripId.toInt, dateString, passengerId.toInt, place)}.
+      map{ case passengerInTripData(tripId, dateString, passengerId, place) => PassengerInTrip(tripId.toInt, dateString, passengerId.toInt, place) }.
       toSeq
 }
 
@@ -28,7 +28,7 @@ object PassengerDataHelper extends DataHelper[Passenger] {
   def getData(resource: String): Seq[Passenger] =
     Source.fromResource(resource).
       getLines.
-      map {case passengerData(pass_id, name) => Passenger(Some(pass_id.toInt), name)}.
+      map{ case passengerData(pass_id, name) => Passenger(Some(pass_id.toInt), name) }.
       toSeq
 }
 
@@ -37,6 +37,6 @@ object TripDataHelper extends DataHelper[Trip] {
   def getData(resource: String): Seq[Trip] =
     Source.fromResource(resource).
       getLines.
-      map {case tripData(tripId, compId, plane, from, to, timeOut, timeIn) => Trip(Some(tripId.toInt), compId.toInt, plane, from, to, timeOut, timeIn)}.
+      map{ case tripData(tripId, compId, plane, from, to, timeOut, timeIn) => Trip(Some(tripId.toInt), compId.toInt, plane, from, to, timeOut, timeIn) }.
       toSeq
 }
