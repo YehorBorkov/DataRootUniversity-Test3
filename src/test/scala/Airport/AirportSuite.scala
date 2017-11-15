@@ -27,7 +27,7 @@ class AirportSuite extends FunSuite {
       map{ case(name, _, _) => name }.
       result
     /* For some implicit reason using .disticnt.lenght query produces slick.SlickTreeException: Cannot convert node to SQL Comprehension
-     * So I run deprecated .countDistinct in query instead. Kind of the same. Slick is buggy as hell #1 */
+     * So I run deprecated .countDistinct in query instead. */
 
     assert(exec(query).toSet === Set("Bruce Willis", "Mullah Omar", "Nikole Kidman"))
   }
@@ -77,7 +77,7 @@ class AirportSuite extends FunSuite {
       map{ case(_, count) => count.length }.
       result
     /* For some implicit reason adding .max to query itself produces slick.SlickTreeException: Cannot convert node to SQL Comprehension
-       So I run .max on resulting collection instead. Kind of the same. Slick is buggy as hell #2 */
+       So I run .max on resulting collection instead. Kind of the same. */
 
     val result = exec(query)
     val max = result.max
@@ -94,7 +94,7 @@ class AirportSuite extends FunSuite {
       map{ case (trip1, _) => (trip1.townFrom, trip1.townTo) }.
       result
     /* Slick is kind of cool, but lacks some interactive features, such as SQL's CASE and conditional actions.
-       Still, I can ger all the tuples i need and process them within Scala. Kind of the same. Slick is clunky as hell */
+       Still, I can get all the tuples I need and process them within Scala. */
 
     val result = exec(query).
       map{ case(from, to) => if (from > to) from + to else to + from }.
@@ -135,7 +135,6 @@ class AirportSuite extends FunSuite {
       map{ case(tripDate, tripsCount) => (tripsCount.length, tripDate) }.
       result
 
-    /* Some type checking error was here, full type annotation required. */
     val result = exec(query).map{
       tuple: (Int, Instant) => tuple match {
         case(times, date) => (times, date.toString.dropRight(10)) } }.
