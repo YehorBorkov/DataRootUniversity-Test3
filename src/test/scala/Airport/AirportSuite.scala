@@ -201,14 +201,14 @@ class AirportSuite extends FunSuite {
   test("task 66(3)") {
     /* For all days between 2003-04-01 and 2003-04-07 find the number of trips from Rostov.
        Result set: date, number of trips. */
-    val query = trips.join(passengersInTrips).on(_.tripNo === _.tripNo).
+    val flightsFromRostov = trips.join(passengersInTrips).on(_.tripNo === _.tripNo).
       filter{ case(trip, _) => trip.townFrom === "Rostov" }.
       map{ case(trip, passengerInTrip) => (trip.tripNo, passengerInTrip.date) }.
       groupBy{ case(tripNo, tripDate) => (tripNo, tripDate)}.
       map{ case((_, tripDate), _) => tripDate }.
       result
 
-    val flights = exec(query).
+    val flights = exec(flightsFromRostov).
       map( date => date.toLocalDate ).
       filter( date => date.getYear == 2003 && date.getMonthValue == 4 && (1 to 7 contains date.getDayOfMonth) )
     val result = (1 to 7).
@@ -222,12 +222,12 @@ class AirportSuite extends FunSuite {
   test("task 76(3)") {
     /* Find the overall flight duration for passengers who never occupied the same seat.
        Result set: passenger name, flight duration in minutes. */
-    val query = passengers.join(passengersInTrips).on(_.IDPsg === _.IDPsg).
+    val passengersWithTripsQuery = passengers.join(passengersInTrips).on(_.IDPsg === _.IDPsg).
       join(trips).on{ case((_, passengerInTrip), trip) => passengerInTrip.tripNo === trip.tripNo }.
       map{ case((passenger, passengerInTrip), trip) => (passenger.name, passengerInTrip.place, trip.timeOut, trip.timeIn) }.
       result
 
-    val result = exec(query).
+    val result = exec(passengersWithTripsQuery).
       map{ case(name, place, timeOut, timeIn) => (
         name,
         place,
@@ -336,4 +336,51 @@ class AirportSuite extends FunSuite {
     assert(result === Set(("Aeroflot",108.0,108.0,108.0,108.0), ("air_France",200.0,200.0,200.0,200.0)))
   }
 
+  test("task 131(3)") {
+    /* Select from the Trip table such cities, which names contain at least 2 different vowels from the list (a,e,i,o,u),
+       and any existing in the name vowel appears in a name the same times as other ones. */
+    val distinctCitiesFrom = trips.
+      map(_.townFrom).
+      distinct
+    val distinctCitiesTo = trips.
+      map(_.townTo).
+      distinct
+    val distinctCitiesQuery =
+      (distinctCitiesFrom ++ distinctCitiesTo).distinct.result
+
+    val distinctCities = exec(distinctCitiesQuery)
+    val vowels = Set('a','e','i','o','u')
+    val result = distinctCities.
+      map( cityName => (cityName, cityName.filter(vowels.contains)) ).
+      filter{ case(_, vowelsSeq) => vowelsSeq.length >= 2 && vowelsSeq.length == vowelsSeq.toSet.size }.
+      map{ case(city, _) => city }.
+      toSet
+
+    assert(result === Set("Paris", "Singapore"))
+  }
+
+  test("task 133(4)") {
+    /* Let S be a subset of set of integers.
+       Refer to "hill of top N" as a sequence of numbers from S where N is preceded by the chain of increasing numbers
+       less than N ( left to right without delimiters), and then is succeeded by the chain of the same numbers in
+       descending order. For example, for S={1,2,...,10} the "hill" with a top of 5 is represented by the sequence: 123454321.
+       For S that consists of all the companies identifiers, build the "hill" for every company where its identifier is
+       the top, considering that the IDs are positive integers, and number of digits in the "hill" is not more than 70.
+       Result set: id_comp, "hill" */
+    val companyIdsQuery = companies.
+      map(_.IDComp).
+      result
+
+    def buildHill(s: Seq[Int], id: Int): String = {
+      val ordered = s.sorted
+      val hill = ordered.takeWhile(_ < id).mkString
+      (hill.takeRight(34) ++ (id +: hill.reverse.take(34))).mkString
+    }
+    val ids = exec(companyIdsQuery)
+    val result = ids.
+    map( id => (id, buildHill(ids, id)) ).
+      toSet
+
+    assert(result === Set((1,"1"), (2,"121"), (3,"12321"), (4,"1234321"), (5,"123454321")))
+  }
 }
